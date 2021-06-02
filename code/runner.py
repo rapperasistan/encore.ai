@@ -7,6 +7,8 @@ import constants as c
 from LSTMModel import LSTMModel
 from data_reader import DataReader
 
+import os
+
 
 class LyricGenRunner:
     def __init__(self, model_load_path, artist_name, test, prime_text):
@@ -81,15 +83,17 @@ class LyricGenRunner:
         sample = self.model.generate(prime=prime_text)
 
         print sample
+        return sample
 
 def main():
     load_path = None
     artist_name = 'kanye_west'
     test = False
     prime_text = None
+    number_test = None
 
     try:
-        opts, _ = getopt.getopt(sys.argv[1:], 'l:m:a:p:s:t', ['load_path=', 'model_name=',
+        opts, _ = getopt.getopt(sys.argv[1:], 'l:mn::a:p:s:t:', ['load_path=', 'model_name=','number=',
                                                             'artist_name=', 'prime=', 'seq_len',
                                                             'test', 'save_freq='])
     except getopt.GetoptError:
@@ -101,6 +105,7 @@ def main():
         if opt in ('-m', '--model_name'):
             c.set_save_name(arg)
         if opt in ('-a', '--artist_name'):
+            print arg
             artist_name = arg
         if opt in ('-p', '--prime'):
             prime_text = arg
@@ -108,10 +113,20 @@ def main():
             c.SEQ_LEN = arg
         if opt in ('-t', '--test'):
             test = True
+        if opt in ('-n', '--number'):
+            test = True
+            number_test = int(arg)
+
         if opt == '--save_freq':
             c.MODEL_SAVE_FREQ = int(arg)
+    the_class = LyricGenRunner(load_path, artist_name, test, prime_text)
+    if not number_test is None:
+      f = open("../save/results.txt", "a")
+      for i in xrange(number_test):
+        f.write(str(the_class.test(None)) + "\n")
+      f.close()
 
-    LyricGenRunner(load_path, artist_name, test, prime_text)
+
 
 
 if __name__ == '__main__':
